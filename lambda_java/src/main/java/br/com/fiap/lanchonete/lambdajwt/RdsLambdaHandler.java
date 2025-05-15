@@ -33,19 +33,19 @@ public class RdsLambdaHandler implements RequestHandler <String, String> {
         String jwt = null;
         String dbSchema = "lanch";
 
-        String dbHost = "lanchonete-db.cijutajfn35x.us-east-1.rds.amazonaws.com:5432";
+        /*String dbHost = "lanchonete-db.cijutajfn35x.us-east-1.rds.amazonaws.com:5432";
         String dbName = "lanchdb";
         String dbPort = "5432";
         String dbUser = "lanchuser";
-        String dbPassword = "lanch1234";
+        String dbPassword = "lanch1234";*/
 
         Connection conn = null;
 
 
-        /*String dbHost = System.getenv("DB_HOST") != null ? System.getenv("DB_HOST") : "your-rds-endpoint.amazonaws.com";
+        String dbHost = System.getenv("DB_HOST") != null ? System.getenv("DB_HOST") : "your-rds-endpoint.amazonaws.com";
         String dbName = System.getenv("DB_NAME") != null ? System.getenv("DB_NAME") : "your_database_name";
         String dbUser = System.getenv("DB_USER") != null ? System.getenv("DB_USER") : "your_database_user";
-        String dbPassword = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "your_database_password";*/
+        String dbPassword = System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "your_database_password";
         //public static final String EXTERNAL_IP_API = System.getenv("EXTERNAL_IP_API") != null ? System.getenv("EXTERNAL_IP_API") : "default-elb";
         //public static final String EXTERNAL_IP_PAYMENT = System.getenv("EXTERNAL_IP_PAYMENT") != null ? System.getenv("EXTERNAL_IP_PAYMENT") : "default-elb";
 
