@@ -1,0 +1,43 @@
+# Attach IAM Permissions to Lambda
+
+resource "aws_iam_policy" "lambda_secrets_access" {
+  name = "LambdaSecretsPolicy"
+  policy = jsonencode({
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["secretsmanager:GetSecretValue"]
+      Resource = "arn:aws:secretsmanager:region:account-id:secret:your-db-secret-name"
+    }]
+  })
+}
+
+
+# Use Terraform to create and store your JWT secret securely.
+
+resource "aws_secretsmanager_secret" "jwt_secret" {
+  name = "jwt-secret-key"
+}
+
+resource "aws_secretsmanager_secret_version" "jwt_secret_value" {
+  secret_id     = aws_secretsmanager_secret.jwt_secret.id
+  secret_string = jsonencode({
+    "jwt-key" = "iiJOalPElFV2eKu2kMojY/MmiaQBNU3X/NaiuwIySpc="
+  })
+}
+
+# Your Lambda function needs IAM permissions to read the secret.
+resource "aws_iam_policy" "lambda_secrets_access" {
+  name = "LambdaSecretsPolicy"
+  policy = jsonencode({
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["secretsmanager:GetSecretValue"]
+      Resource = aws_secretsmanager_secret.jwt_secret.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_attach_secret_policy" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_secrets_access.arn
+}
