@@ -47,7 +47,8 @@ resource "aws_lambda_function" "lanchonete_lambda" {
   runtime       = "java17" 
   handler       = "br.com.fiap.lanchonete.lambdajwt.RdsLambdaHandler::handleRequest"
   role          = data.aws_iam_role.labrole.arn
-  filename      = "./lambda_java/target/lambda_javalambda-1.0-SNAPSHOT-jar-with-dependencies.jar" 
+  filename      = "./lambda_java/target/lambda-1.0-SNAPSHOT-jar-with-dependencies.jar"
+  timeout	= 60
 
   vpc_config {
     subnet_ids         = [data.aws_subnet.lanchonete_private_subnet_1.id,
