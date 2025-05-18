@@ -24,10 +24,11 @@ import java.util.Map;
 - Sets token expiration (1 hour) to enforce security best practices.
  */
 public class RdsLambdaHandler implements RequestHandler <String, String> {
+    private LambdaLogger logger = null;
 
     @Override
     public String handleRequest(String cpf, Context context) {
-        LambdaLogger logger = context.getLogger();
+        logger = context.getLogger();
         logger.log("Handler invoked.");
 
         String jwt = null;
@@ -63,6 +64,7 @@ public class RdsLambdaHandler implements RequestHandler <String, String> {
 */
             // Establish connection to RDS
             conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+            logger.log("Antes de verificar conexão: "+conn);
             if (!conn.isValid(0)) {
                 logger.log("Failed to connect to RDS: " + dbUrl);
                 return jwt;
@@ -78,9 +80,11 @@ public class RdsLambdaHandler implements RequestHandler <String, String> {
                 if (rs.next()) {
                     logger.log("CPF found.");
                     jwt = generateJwt(cpf);
+                    logger.log("JWT CPF found: "+jwt);
                 } else {
                     logger.log("CPF NOT found.");
                     jwt = generateJwt("");
+                    logger.log("JWT CPF NOT found: "+jwt);
                 }
             }
         } catch (SQLException e) {
@@ -90,6 +94,7 @@ public class RdsLambdaHandler implements RequestHandler <String, String> {
             logger.log("Catch JsonProcessingException.");
             throw new RuntimeException(e);
         } finally {
+            logger.log("Entrou no finally: "+conn);
             if (conn != null) {
                 try {
                     conn.close();
@@ -98,6 +103,8 @@ public class RdsLambdaHandler implements RequestHandler <String, String> {
                     logger.log("Catch Finally.");
                     throw new RuntimeException(e);
                 }
+            }else {
+                logger.log("Else do finally: "+conn);
             }
         }
         logger.log("JWT: "+jwt);
@@ -140,21 +147,29 @@ public class RdsLambdaHandler implements RequestHandler <String, String> {
     }*/
 
     private String generateJwt(String cpf) throws JsonProcessingException {
-        return JWT.create()
-                .withIssuer("LanchoneteApp")
-                .withSubject("UserAuthentication")
-                .withClaim("cpf", cpf)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 3600 * 1000)) // 1-hour expiration
-                .sign(Algorithm.HMAC256(this.getJwtSecret()));
+        logger.log("Entrou no método de gerar JWT.");
+        try {
+            return JWT.create()
+                    .withIssuer("LanchoneteApp")
+                    .withSubject("UserAuthentication")
+                    .withClaim("cpf", cpf)
+                    .withExpiresAt(new Date(System.currentTimeMillis() + 3600 * 1000)) // 1-hour expiration
+                    .sign(Algorithm.HMAC256(this.getJwtSecret()));
+        }catch (Exception e){
+            logger.log("Erro ao gerar JWT: "+e);
+            return null;
+        }
     }
 
     private String getJwtSecret() throws JsonProcessingException {
+        logger.log("Entrou no método de get JWT Secret.");
         AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard().build();
         GetSecretValueRequest request = new GetSecretValueRequest().withSecretId("jwt-secret-key");
         GetSecretValueResult result = client.getSecretValue(request);
-
+        logger.log("Antes de chamar o ObjectMapper de get JWT Secret.");
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> secretMap = objectMapper.readValue(result.getSecretString(), Map.class);
+        logger.log("Ultima linha do método de get JWT Secret.");
         return secretMap.get("jwt-key");
     }
 }
