@@ -51,13 +51,13 @@ resource "aws_lambda_function" "lanchonete_lambda" {
   timeout	= 60
 
   depends_on = [
-    aws_security_group.lanchonete_lambda_sg
+    aws_security_group.lanchonete_lambda_sg, aws_secretsmanager_secret_version.jwt-secret-version
   ]
 
   vpc_config {
     subnet_ids         = [data.aws_subnet.lanchonete_private_subnet_1.id,
                           data.aws_subnet.lanchonete_private_subnet_2.id]
-    security_group_ids = [aws_security_group.lanchonete_lambda_sg.id]
+    security_group_ids = [aws_security_group.lanchonete_lambda_sg.id/* ??? eks_security_group ???*/]
   }
 
   environment {
@@ -67,26 +67,23 @@ resource "aws_lambda_function" "lanchonete_lambda" {
       DB_NAME                         = local.db_name
       DB_USER                         = local.db_user
       DB_PASSWORD                     = local.db_password
-      DB_HOST                         = data.aws_db_instance.lanchonete_db.endpoint 
+      DB_HOST                         = data.aws_db_instance.lanchonete_db.endpoint
+      JWT_SECRET_NAME                 = aws_secretsmanager_secret.jwt-secret-key.name 
     }
   }
 }
 
-#Verificar a utlização desse recurso, pois quando é executado o destroy a aws não exclui a secret
-# apenas agenda para exclusão posteriormente. 
-# Pode ser usado o lifecycle com prevent destroy para não excluir no destroy
-# e o lifecycle com o ignoreChanges para não tentar criar novamente quando existir
+resource "aws_secretsmanager_secret" "jwt-secret-key" {
+ name = "jwt-secret-key"
+ recovery_window_in_days = 0
+}
 
-#resource "aws_secretsmanager_secret" "jwt_secret_key" {
-#  name = "jwt-secret"
-#}
-
-#resource "aws_secretsmanager_secret_version" "jwt_secret_value" {
-#  secret_id = aws_secretsmanager_secret.jwt_secret_key.id
-#  secret_string = jsonencode({
-#    jwt-key = "498d6f0f373eaf3756caa0ee0d6a9b2ad561116cc64c10b8885153b62b07c4a2"
-#  })
-#}
+resource "aws_secretsmanager_secret_version" "jwt-secret-version" {
+ secret_id = aws_secretsmanager_secret.jwt-secret-key.id
+ secret_string = jsonencode({
+   jwt-key = "498d6f0f373eaf3756caa0ee0d6a9b2ad561116cc64c10b8885153b62b07c4a2"
+ })
+}
 
 # Recurso dinâmico base "/{proxy+}"
 resource "aws_api_gateway_resource" "proxy" {

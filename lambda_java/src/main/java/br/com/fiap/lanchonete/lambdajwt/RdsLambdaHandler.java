@@ -163,8 +163,10 @@ public class RdsLambdaHandler implements RequestHandler <String, String> {
 
     private String getJwtSecret() throws JsonProcessingException {
         logger.log("Entrou no método de get JWT Secret.");
+        String jwtSecretName = System.getenv("JWT_SECRET_NAME") != null ? System.getenv("JWT_SECRET_NAME") : "name-jwt-secret";
+        logger.log("JWT Secret Name: "+jwtSecretName);
         AWSSecretsManager client = AWSSecretsManagerClientBuilder.standard().build();
-        GetSecretValueRequest request = new GetSecretValueRequest().withSecretId("jwt-secret-key");
+        GetSecretValueRequest request = new GetSecretValueRequest().withSecretId(jwtSecretName);
         GetSecretValueResult result = client.getSecretValue(request);
         logger.log("Antes de chamar o ObjectMapper de get JWT Secret.");
         ObjectMapper objectMapper = new ObjectMapper();
