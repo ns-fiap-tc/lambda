@@ -48,7 +48,7 @@ resource "aws_lambda_function" "lanchonete_lambda" {
   handler       = "br.com.fiap.lanchonete.lambdajwt.RdsLambdaHandler::handleRequest"
   role          = data.aws_iam_role.labrole.arn
   filename      = "./lambda_java/target/lambda-1.0-SNAPSHOT-jar-with-dependencies.jar"
-  timeout	= 60
+  timeout	= 120
 
   depends_on = [
     aws_security_group.lanchonete_lambda_sg, aws_secretsmanager_secret_version.jwt-secret-version
@@ -62,8 +62,8 @@ resource "aws_lambda_function" "lanchonete_lambda" {
 
   environment {
     variables = {
-      #IP_EXTERNO_LANCHONETE_APP       = "http://${data.kubernetes_service.service-lanchonete-app.status[0].load_balancer[0].ingress[0].hostname}:80"
-      #IP_EXTERNO_PAGAMENTO_MOCK_HOST  = "http://${data.kubernetes_service.service-pagamento-mock.status[0].load_balancer[0].ingress[0].hostname}:8081"
+      IP_EXTERNO_LANCHONETE_APP       = "http://${data.kubernetes_service.service-lanchonete-app.status[0].load_balancer[0].ingress[0].hostname}:80"
+      IP_EXTERNO_PAGAMENTO_MOCK_HOST  = "http://${data.kubernetes_service.service-pagamento-mock.status[0].load_balancer[0].ingress[0].hostname}:8081"
       DB_NAME                         = local.db_name
       DB_USER                         = local.db_user
       DB_PASSWORD                     = local.db_password
