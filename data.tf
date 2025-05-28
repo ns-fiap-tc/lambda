@@ -84,3 +84,10 @@ data "aws_subnet" "lanchonete_private_subnet_2" {
   }
 }
 
+data "aws_secretsmanager_secret" "jwt-secret-key" {
+  name = "jwt-secret-key" 
+}
+
+data "aws_secretsmanager_secret_version" "jwt-secret-version" {
+  secret_id = data.aws_secretsmanager_secret.jwt-secret-key.id
+}
