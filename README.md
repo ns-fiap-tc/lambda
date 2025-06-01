@@ -7,7 +7,7 @@ Este é o repositório que contém códigos Terraform para gerenciar infraestrut
 > 1. A provisão deste repositório; [infra-base](https://github.com/ns-fiap-tc/infra-base)
 > 2. A provisão do repositório do banco de dados: [infra-bd](https://github.com/ns-fiap-tc/infra-bd);
 > 3. A provisão da aplicação principal e mock de pagamento em [tech_challenge_fiap](https://github.com/ns-fiap-tc/tech_challenge_fiap).
-> 4. A provisão da lambda e api gateway: [lambda](https://github.com/ns-fiap-tc/lambda);
+> 4. A provisão deste repositório: [lambda](#como-rodar-o-projeto);
 
 
 ## Como rodar o projeto
