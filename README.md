@@ -10,9 +10,62 @@ Este é o repositório que contém códigos Terraform para gerenciar infraestrut
 > 4. A provisão deste repositório: [lambda](#como-rodar-o-projeto);
 
 
-## Como rodar o projeto
+## 🚀 Como rodar o projeto
 
-### Localmente
+### 🤖 Via GitHub Actions
+<details>
+  <summary>Passo a passo</summary>
+
+#### 📖 Resumo
+Este repositório possui uma pipeline automatizada chamada `Terraform Deploy` que permite provisionar a infraestrutura de uma **AWS Lambda responsável por validar o CPF dos clientes e emitir o JWT de autenticação** sempre que houver um push na branch `main`.
+
+A branch é protegida e só aceita alterações que venham de PRs previamente aprovadas.
+
+> ⚠️ Apenas usuários com acesso ao repositório e às **GitHub Secrets** corretas conseguem utilizar esse fluxo.
+
+#### 🔐 Pré-requisitos
+Certifique-se de que as seguintes **secrets** estejam configuradas no repositório do GitHub (`Settings > Secrets and variables > Actions`):
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_SESSION_TOKEN` *(se estiver usando AWS Academy)*
+
+Essas variáveis são utilizadas pelo Terraform para autenticação e execução dos planos na AWS.
+
+#### ⚙️ Etapas da pipeline `Terraform Deploy`
+1. 🧾 **Checkout do código**: A action clona este repositório.
+2. ⚒️ **Setup do Terraform**: Instala a ferramenta na máquina runner.
+3. 📂 **Acesso ao diretório atual**: Todos os arquivos `.tf` são lidos da raiz do repositório.
+4. 🔐 **Carregamento das variáveis sensíveis** via secrets.
+5. 🧪 **Execução do `terraform init`**: Inicializa o backend e os providers.
+6. 🚀 **Execução do `terraform apply`**: A função é criada ou atualizada com base no código referenciado.
+
+#### 🧭 Diagrama do fluxo
+
+```mermaid
+flowchart TD
+    G[Push na branch main] --> A[Workflow: Terraform Deploy]
+
+    subgraph Pipeline
+        A1[Checkout do código]
+        A2[Setup do Terraform]
+        A3[Carrega Secrets da AWS]
+        A4[terraform init]
+        A5[terraform plan]
+        A6[terraform apply]
+    end
+
+    A --> A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> RDS[AWS Lambda Atualizada]
+```
+
+#### Benefícios desse fluxo
+- ⚡ Deploy automatizado da função Lambda
+- ✅ Redução de erros manuais
+- 🔐 Segurança no uso de credenciais via GitHub Secrets
+- 🔁 Reprodutibilidade garantida
+
+</details>
+
+### 💻 Localmente
 
 <details>
   <summary>Passo a passo</summary>
