@@ -3,6 +3,10 @@ name: Terraform Deploy
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "**/*.md"
+      - ".github/ISSUE_TEMPLATE/**"
 
 jobs:
   deploy:
